@@ -1,4 +1,4 @@
-const Sequelize = require('Sequelize').Sequelize
+const Sequelize = require('sequelize').Sequelize
 
 // new Sequelize('database_name', 'mysql_user', 'mysql_password')
 
