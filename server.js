@@ -20,7 +20,7 @@ app.use(express.urlencoded({
 
 // CORS will allow cross orgigin request sharing on our web server
 const corsOptions = {
-    origin: 'http://localhost:8080'
+    origin: 'https://youthful-hamilton-b85e05.netlify.app/'
 }
 
 app.use(cors(corsOptions))
