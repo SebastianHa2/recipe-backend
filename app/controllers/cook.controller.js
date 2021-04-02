@@ -33,10 +33,14 @@ exports.logInCook = async (req, res) => {
             if(user){
                 const passwordCheck = await bcrypt.compare(req.body.password, user[0].password)
                 if(passwordCheck){
-                    console.log(passwordCheck)
-                    res.status(200).send({
-                        message: "Logged in successfully!",
-                        user
+                    req.session.loggedIn = true
+                    req.session.user = user
+                    req.session.save((err) => {
+                        console.log(err)
+                        res.status(200).send({
+                            isLoggedIn: req.session.loggedIn,
+                            isLoggedInAs: req.session.user
+                        })
                     })
                 }else{
                     res.send({
@@ -48,6 +52,14 @@ exports.logInCook = async (req, res) => {
         console.log(err)
         res.send({
             message: "Something went wrong during logging in..."
+        })
+    })
+}
+
+exports.logOutCook = (req, res) => {
+    req.session.destroy(() => {
+        res.status(200).send({
+            message: "Logged out successfully"
         })
     })
 }

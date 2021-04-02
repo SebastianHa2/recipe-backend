@@ -10,4 +10,6 @@ router.post('/register', cookController.registerCook)
 
 router.post('/log-in', cookController.logInCook)
 
+router.post('/log-out', cookController.logOutCook)
+
 module.exports = router

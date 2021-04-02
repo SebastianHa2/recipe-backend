@@ -1,5 +1,7 @@
 const express = require('express')
 const cors = require('cors')
+const session = require('express-session')
+const sessionSequelizeStore = require('connect-session-sequelize')(session.Store)
 
 const db = require('./app/util/database')
 const recipeRoutes = require('./app/routes/recipe.routes')
@@ -10,6 +12,28 @@ const Cook = require('./app/models/cook.model')
 
 const app = express()
 
+// CORS will allow cross orgigin request sharing on our web server
+const corsOptions = {
+    origin: 'http://localhost:8081',
+    credentials: true
+}
+
+app.use(cors(corsOptions))
+
+
+app.use(session({
+    secret: 'long secret of misery',
+    saveUninitialized: false,
+    resave: false,
+    cookie: {
+        secure: false,
+        httpOnly: false
+    },
+    store: new sessionSequelizeStore({
+        db: db
+    })
+}))
+
 // Tell express to parse any requests of content-type application/json
 app.use(express.json())
 
@@ -18,15 +42,19 @@ app.use(express.urlencoded({
     extended: true
 }))
 
-// CORS will allow cross orgigin request sharing on our web server
-const corsOptions = {
-    origin: 'https://recipe-saver-b85e05.netlify.app'
-}
+app.use('/is-logged-in', (req, res, next) => {
+    if(req.session.user) {
+        res.status(200).send({
+            isLoggedIn: req.session.loggedIn,
+            isLoggedInAs: req.session.user
+        })
+    }
+        res.status(200)
+})
 
-app.use(cors(corsOptions))
-
-app.use('/recipes/', recipeRoutes)
 app.use('/cooks/', cookRoutes)
+app.use('/recipes/', recipeRoutes)
+
 
 
 Cook.hasMany(Recipe)
