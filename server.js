@@ -14,7 +14,7 @@ const app = express()
 
 // CORS will allow cross orgigin request sharing on our web server
 const corsOptions = {
-    origin: 'https://www.frontendkid.com',
+    origin: 'https://recipe-saver-b85e05.netlify.app',
     credentials: true
 }
 
