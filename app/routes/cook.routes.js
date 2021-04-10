@@ -12,4 +12,6 @@ router.post('/log-in', cookController.logInCook)
 
 router.post('/log-out', cookController.logOutCook)
 
+router.get('/is-logged-in', cookController.isLoggedIn)
+
 module.exports = router

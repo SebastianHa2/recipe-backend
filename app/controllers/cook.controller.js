@@ -73,3 +73,14 @@ exports.fetchAllCooks = (req, res) => {
         })
     })
 }
+
+
+exports.isLoggedIn = (req, res, next) => {
+    if(req.session.user) {
+        res.status(200).send({
+            isLoggedIn: req.session.loggedIn,
+            isLoggedInAs: req.session.user
+        })
+    }
+        res.status(200)
+}
