@@ -42,16 +42,6 @@ app.use(express.urlencoded({
     extended: true
 }))
 
-app.use('/is-logged-in', (req, res, next) => {
-    if(req.session.user) {
-        res.status(200).send({
-            isLoggedIn: req.session.loggedIn,
-            isLoggedInAs: req.session.user
-        })
-    }
-        res.status(200)
-})
-
 app.use('/cooks/', cookRoutes)
 app.use('/recipes/', recipeRoutes)
 
