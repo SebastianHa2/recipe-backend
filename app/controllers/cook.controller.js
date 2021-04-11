@@ -82,5 +82,10 @@ exports.isLoggedIn = (req, res, next) => {
             isLoggedInAs: req.session.user
         })
     }
-        res.status(200)
+    else{
+        res.send({
+            message: 'Not logged in'
+        })
+    }
+        
 }
