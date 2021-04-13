@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const session = require('express-session')
 const sessionSequelizeStore = require('connect-session-sequelize')(session.Store)
+const history = require('connect-history-api-fallback')
 
 const db = require('./app/util/database')
 const recipeRoutes = require('./app/routes/recipe.routes')
@@ -13,6 +14,7 @@ const Cook = require('./app/models/cook.model')
 const app = express()
 
 app.set("trust proxy", 1);
+app.use(history())
 
 // CORS will allow cross origin request sharing on our web server
 const corsOptions = {
