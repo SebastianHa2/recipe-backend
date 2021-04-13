@@ -14,9 +14,8 @@ const app = express()
 
 app.set("trust proxy", 1);
 
-// CORS will allow cross orgigin request sharing on our web server
+// CORS will allow cross origin request sharing on our web server
 const corsOptions = {
-    origin: 'https://recipe-saver-b85e05.netlify.app',
     credentials: true
 }
 
@@ -47,6 +46,17 @@ app.use(express.urlencoded({
 app.use('/cooks/', cookRoutes)
 app.use('/recipes/', recipeRoutes)
 
+
+// Handle production
+if(process.env.NODE_ENV === 'production'){
+    // Set static folder
+    app.use(express.static(__dirname + '/public'))
+
+    // Handle SPA
+    app.get(/.*/, (req, res) => {
+        res.sendFile(__dirname + '/public/index.html')
+    })
+}
 
 
 Cook.hasMany(Recipe)
