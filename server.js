@@ -12,6 +12,8 @@ const Cook = require('./app/models/cook.model')
 
 const app = express()
 
+app.set("trust proxy", 1);
+
 // CORS will allow cross orgigin request sharing on our web server
 const corsOptions = {
     origin: 'https://recipe-saver-b85e05.netlify.app',
@@ -26,7 +28,8 @@ app.use(session({
     saveUninitialized: false,
     resave: false,
     cookie: {
-        httpOnly: true
+        sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax', // must be 'none' to enable cross-site delivery
+        secure: process.env.NODE_ENV === "production", // must be true if sameSite='none'
     },
     store: new sessionSequelizeStore({
         db: db
