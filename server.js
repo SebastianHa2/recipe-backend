@@ -25,6 +25,10 @@ app.use(session({
     secret: 'long secret of misery',
     saveUninitialized: false,
     resave: false,
+    cookie: {
+        httpOnly: false,
+        secure: false
+    },
     store: new sessionSequelizeStore({
         db: db
     })
