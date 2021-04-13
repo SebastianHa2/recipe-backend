@@ -26,8 +26,7 @@ app.use(session({
     saveUninitialized: false,
     resave: false,
     cookie: {
-        httpOnly: false,
-        secure: false
+        httpOnly: true
     },
     store: new sessionSequelizeStore({
         db: db
