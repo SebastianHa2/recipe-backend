@@ -79,7 +79,8 @@ exports.isLoggedIn = (req, res, next) => {
     if(req.session.user) {
         res.send({
             isLoggedIn: req.session.loggedIn,
-            isLoggedInAs: req.session.user
+            isLoggedInAs: req.session.user,
+            csrf: req.csrfToken()
         })
     }
     else{

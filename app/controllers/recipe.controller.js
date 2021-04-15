@@ -29,7 +29,6 @@ exports.fetchAllRecipes = (req, res) => {
     // Get all recipes from the database
     Recipe.findAll().then(data => {
         // Send the data back to our front end
-        console.log(req.session.loggedIn)
         res.send(data)
     }).catch(err => {
         res.send({

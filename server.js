@@ -3,6 +3,8 @@ const cors = require('cors')
 const session = require('express-session')
 const sessionSequelizeStore = require('connect-session-sequelize')(session.Store)
 const history = require('connect-history-api-fallback')
+const csrf = require('csurf')
+const cookieParser = require('cookie-parser')
 
 const db = require('./app/util/database')
 const recipeRoutes = require('./app/routes/recipe.routes')
@@ -13,7 +15,6 @@ const Cook = require('./app/models/cook.model')
 
 const app = express()
 
-app.set("trust proxy", 1);
 app.use(history())
 
 // CORS will allow cross origin request sharing on our web server
@@ -23,6 +24,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 
+const csrfProtection = csrf({cookie: true})
 
 app.use(session({
     secret: 'long secret of misery',
@@ -37,6 +39,11 @@ app.use(session({
     })
 }))
 
+app.use(cookieParser())
+
+app.use(csrfProtection)
+
+
 // Tell express to parse any requests of content-type application/json
 app.use(express.json())
 
@@ -44,6 +51,16 @@ app.use(express.json())
 app.use(express.urlencoded({
     extended: true
 }))
+
+app.use((req, res, next)=> {
+
+    var token = req.csrfToken();
+    res.cookie('XSRF-TOKEN', token);
+    res.locals.csrfToken = token;
+  
+    next();
+  });
+  
 
 app.use('/cooks/', cookRoutes)
 app.use('/recipes/', recipeRoutes)
