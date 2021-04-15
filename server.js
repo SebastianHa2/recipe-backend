@@ -15,6 +15,8 @@ const Cook = require('./app/models/cook.model')
 
 const app = express()
 
+app.set("trust proxy", 1)
+
 app.use(history())
 
 // CORS will allow cross origin request sharing on our web server
