@@ -1,9 +1,16 @@
 const Cook = require('../models/cook.model')
 const bcrypt = require('bcryptjs')
+const { validationResult } = require('express-validator/check')
 
 exports.registerCook = async (req, res) => {
     // We are receiving the information in the request body
     try{
+        const errors = validationResult(req)
+
+        if(!errors.isEmpty()){
+            return res.status(422).json({message: 'Validation failed', errors: errors.array()})
+        }
+
         const hash = await bcrypt.hash(req.body.password, 10)
     
         Cook.create({

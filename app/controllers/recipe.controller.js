@@ -1,10 +1,17 @@
 const Recipe = require('../models/recipe.model')
 const Sequelize = require('sequelize')
 const Op = Sequelize.Op
+const { validationResult } = require('express-validator/check')
 
 exports.createRecipe = (req, res) => {
     // We will get all the needed data in the request body from our 
     // front end
+    const errors = validationResult(req)
+
+    if(!errors.isEmpty()){
+        return res.status(422).json({message: "Validation failed", errors: errors.array()})
+    }
+
     const recipe = {
         title: req.body.title,
         instructions: req.body.instructions,
@@ -15,11 +22,11 @@ exports.createRecipe = (req, res) => {
 
     // Create an entry in the database using the recipe object
     Recipe.create(recipe).then(data => {
-        res.send({
+        res.status(201).json({
             message: "Recipe was created successfully"
         })
     }).catch(err => {
-        res.status(400).send({
+        res.status(400).json({
             message: err.message || "There was an error creating the recipe..." 
         })
     })
@@ -27,11 +34,34 @@ exports.createRecipe = (req, res) => {
 
 exports.fetchAllRecipes = (req, res) => {
     // Get all recipes from the database
-    Recipe.findAll().then(data => {
-        // Send the data back to our front end
-        res.send(data)
+    const { page, size } = req.query
+    let numberOfAllRecipes
+    let numberOfPages
+
+    Recipe.findAll().then(allRecipes => {
+        numberOfAllRecipes = allRecipes.length
+
+        numberOfPages = Math.ceil(parseInt(numberOfAllRecipes)/parseInt(size))
+
+        console.log(numberOfPages)
+
+        Recipe.findAndCountAll({
+            limit: parseInt(size),
+            offset: parseInt(page)*parseInt(size)
+        }).then(data => {
+            // Send the data back to our front end
+            res.status(200).json({
+                recipes: data,
+                numberOfPages: numberOfPages,
+                numberOfAllRecipes: numberOfAllRecipes
+            })
+        }).catch(err => {
+            res.status(400).json({
+                message: err.message || "Something went wrong while retrieving the recipes"
+            })
+        })
     }).catch(err => {
-        res.send({
+        res.status(400).json({
             message: err.message || "Something went wrong while retrieving the recipes"
         })
     })
@@ -45,9 +75,11 @@ exports.fetchByTitle = (req, res) => {
     const condition = {title : {[Op.like]: `%${titlePart}%`}}
     Recipe.findAll({where: condition}).then(data => {
         // We send the data back to the front end
-        res.send(data)
+        res.status(200).json({
+            recipe: data
+        })
     }).catch(err => {
-        res.status(500).send({
+        res.status(500).json({
             message: err.message || `Something went wrong while looking for ${titlePart}`
         })
     })
@@ -59,9 +91,11 @@ exports.fetchOneRecipe = (req, res) => {
     // Fetching a recipe by their primary key / id
     Recipe.findByPk(id).then(data => {
         // Send the data back
-        res.send(data)
+        res.status(200).json({
+            recipe: data
+        })
     }).catch(err => {
-        res.status(500).send({
+        res.status(500).json({
             message: err.message || `Something went wrong while looking for recipe with id ${id}`
         })
     })
@@ -73,6 +107,11 @@ exports.updateRecipe = (req, res) => {
     const id = req.params.id
     // We specify the where clause to make sure we only update the recipe with the specific id
     // not all the recipes
+
+    if(!errors.isEmpty()){
+        return res.status(422).json({message: "Validation failed", errors: errors.array()})
+    }
+
     Recipe.update(req.body, {
         where: {
             id: id
@@ -88,7 +127,7 @@ exports.updateRecipe = (req, res) => {
             })
         }
     }).catch(err => {
-        res.status(500).send({
+        res.status(500).json({
             message: err.message || "Something went wrong while updating the recipe..."
         })
     })
@@ -103,16 +142,16 @@ exports.deleteOneRecipe = (req, res) => {
         }
     }).then(num => {
         if(num === 1){
-            res.send({
+            res.status(204).json({
                 message: "Recipe deleted successfully"
             })
         }else{
-            res.send({
+            res.status(500).json({
                 message: `Couldn't delete recipe with id ${id}, maybe it was not found...`
             })
         }
     }).catch(err => {
-        res.status(500).send({
+        res.status(500).json({
             message: err.message || "Something went wrong while deleting the recipe..."
         })
     })
@@ -123,7 +162,7 @@ exports.deleteAllRecipes = (req, res) => {
         // Setting truncate to true will delete all the recipe entries
         truncate: true
     }).then(nums => {
-        res.send({
+        res.status(204).json({
             message: `Successfully deleted ${nums} recipes!`
         })
     }).catch(err => {
