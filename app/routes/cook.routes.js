@@ -3,6 +3,7 @@ const { body } = require('express-validator/check')
 
 const Cook = require('../models/cook.model')
 const cookController = require('../controllers/cook.controller')
+const isAuth = require('../util/is-auth')
 
 const router = express.Router()
 
@@ -26,6 +27,6 @@ router.post('/log-in', cookController.logInCook)
 
 router.post('/log-out', cookController.logOutCook)
 
-router.get('/is-logged-in', cookController.isLoggedIn)
+router.get('/is-logged-in', isAuth)
 
 module.exports = router

@@ -1,12 +1,9 @@
 const express = require('express')
 const cors = require('cors')
-const session = require('express-session')
-const sessionSequelizeStore = require('connect-session-sequelize')(session.Store)
 const history = require('connect-history-api-fallback')
 const csrf = require('csurf')
 const cookieParser = require('cookie-parser')
 
-const db = require('./app/util/database')
 const recipeRoutes = require('./app/routes/recipe.routes')
 const cookRoutes = require('./app/routes/cook.routes')
 const { sequelize } = require('./app/models/recipe.model')
@@ -28,19 +25,6 @@ app.use(cors(corsOptions))
 
 const csrfProtection = csrf({cookie: true})
 
-app.use(session({
-    secret: 'long secret of misery',
-    saveUninitialized: false,
-    resave: false,
-    cookie: {
-        sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax', // must be 'none' to enable cross-site delivery
-        secure: process.env.NODE_ENV === "production", // must be true if sameSite='none'
-    },
-    store: new sessionSequelizeStore({
-        db: db
-    })
-}))
-
 app.use(cookieParser())
 
 app.use(csrfProtection)
@@ -56,7 +40,7 @@ app.use(express.urlencoded({
 
 app.use((req, res, next)=> {
 
-    var token = req.csrfToken();
+    const token = req.csrfToken();
     res.cookie('XSRF-TOKEN', token);
     res.locals.csrfToken = token;
   

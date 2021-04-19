@@ -1,6 +1,7 @@
 const Cook = require('../models/cook.model')
 const bcrypt = require('bcryptjs')
-const { validationResult } = require('express-validator/check')
+const { validationResult } = require('express-validator')
+const jwt = require('jsonwebtoken')
 
 exports.registerCook = async (req, res) => {
     // We are receiving the information in the request body
@@ -40,20 +41,26 @@ exports.logInCook = async (req, res) => {
             if(user){
                 const passwordCheck = await bcrypt.compare(req.body.password, user[0].password)
                 if(passwordCheck){
-                    req.session.loggedIn = true
-                    req.session.user = user
-                    req.session.save((err) => {
-                        console.log(err)
-                        res.status(200).send({
-                            isLoggedIn: req.session.loggedIn,
-                            isLoggedInAs: req.session.user
-                        })
+                    const token = jwt.sign({
+                        userData: user,
+                        loggedIn: true
+                    }, 'long secret of misery',
+                    {expiresIn: '1h'})
+
+                    res.cookie('jwt', token)
+                    res.status(200).json({
+                        token: token,
+                        user: user
                     })
                 }else{
-                    res.send({
+                    res.status(401).json({
                         message: "Incorrect username or password"
                     })
                 }
+            }else{
+                res.status(401).json({
+                    message: "Incorrect username or password"
+                })
             }
         }).catch(err => {
         console.log(err)
@@ -64,10 +71,8 @@ exports.logInCook = async (req, res) => {
 }
 
 exports.logOutCook = (req, res) => {
-    req.session.destroy(() => {
-        res.status(200).send({
-            message: "Logged out successfully"
-        })
+    res.status(200).json({
+        message: 'Successfully logged out'
     })
 }
 

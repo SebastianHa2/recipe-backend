@@ -1,7 +1,7 @@
 const Recipe = require('../models/recipe.model')
 const Sequelize = require('sequelize')
 const Op = Sequelize.Op
-const { validationResult } = require('express-validator/check')
+const { validationResult } = require('express-validator')
 
 exports.createRecipe = (req, res) => {
     // We will get all the needed data in the request body from our 
@@ -42,8 +42,6 @@ exports.fetchAllRecipes = (req, res) => {
         numberOfAllRecipes = allRecipes.length
 
         numberOfPages = Math.ceil(parseInt(numberOfAllRecipes)/parseInt(size))
-
-        console.log(numberOfPages)
 
         Recipe.findAndCountAll({
             limit: parseInt(size),
